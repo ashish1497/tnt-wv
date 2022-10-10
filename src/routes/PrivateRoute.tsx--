@@ -1,0 +1,41 @@
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+
+import { useAuthContext } from '../contexts/AuthContext';
+import Admin from '../pages/Admin';
+import Delivery from '../pages/Delivery';
+import User from '../pages/User';
+
+interface Props {
+  redirectPath?: string;
+}
+
+const PrivateRoute: React.FC<Props> = ({ redirectPath = '/login' }) => {
+  const ctx = useAuthContext();
+  let navigate = useLocation();
+
+  let to =
+    navigate.pathname === '/'
+      ? redirectPath
+      : `${redirectPath}?to=${encodeURIComponent(
+          navigate.pathname + navigate.search
+        )}`;
+
+  if (!ctx?.loggedIn || !ctx.user) {
+    return <Navigate to={to} replace />;
+  }
+
+  const { type } = ctx.user;
+  const Element = {
+    user: <User />,
+    delivery: <Delivery />,
+    admin: <Admin />,
+  };
+
+  return (
+    <Routes>
+      <Route path="/" element={Element[type || 'user']} />
+    </Routes>
+  );
+};
+
+export default PrivateRoute;
