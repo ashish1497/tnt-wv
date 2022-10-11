@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { authenticate, isAuth, unauthenticate } from '../helpers/auth';
 import { getLocalStorage, getCookie } from '../helpers/storage';
 import { COOKIES, STORAGE } from '../const';
+import jwtDecode from 'jwt-decode';
 
 const AuthContext = createContext<any>(null);
 
