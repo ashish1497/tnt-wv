@@ -65,7 +65,7 @@ axiosInstance.interceptors.response.use(
 
     return config.data;
   },
-  (error) => {
+  error => {
     return error.message;
   }
 );

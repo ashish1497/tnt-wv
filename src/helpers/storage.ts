@@ -26,7 +26,7 @@ export const removeCookie = (key: string) => {
 };
 
 export const getCookie = (key: string) => {
-  console.log(key, window);
+  // console.log(key, window);
   if (window !== undefined) {
     return Cookies.get(key);
   }
