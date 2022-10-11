@@ -1,27 +1,26 @@
-import Landing from '../../components/Landing';
-import { useAuthContext } from '../../contexts/AuthContext.js';
+import Header from 'components/Header';
+import Landing from 'components/Landing';
+import User from 'components/User';
+import { useAuthContext } from 'contexts/AuthContext';
 
 const Home = () => {
   // here I want to segregate
-  // const { loggedIn, user } = useAuthContext()!;
+  const { loggedIn, user } = useAuthContext();
 
-  // if (!loggedIn || !user) {
-  //   return <>Landing Comp</>;
-  // }
-
-  // if (user.type === 'admin') {
-  //   return <>Admin Page</>;
-  // }
-
-  // if (user.type === 'delivery') {
-  //   return <>Delivery Page</>;
-  // }
-
-  // if (user.type === 'user') {
-  //   return <>User Page</>;
-  // }
-
-  return <Landing />;
+  return (
+    <>
+      <Header />
+      {!loggedIn || !user ? (
+        <Landing />
+      ) : user?.type === 'admin' ? (
+        'Admin'
+      ) : user?.type === 'delivery' ? (
+        'Delivery'
+      ) : user?.type === 'user' ? (
+        <User />
+      ) : null}
+    </>
+  );
 };
 
 export default Home;

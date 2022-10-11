@@ -7,13 +7,26 @@ import {
   ReactNode,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+import decodeJwt from 'jwt-decode';
 
-import { authenticate, isAuth, unauthenticate } from '../helpers/auth';
-import { getLocalStorage, getCookie } from '../helpers/storage';
-import { COOKIES, STORAGE } from '../const';
-import jwtDecode from 'jwt-decode';
+import {
+  authenticate,
+  isAuth,
+  LoginResponseData,
+  unauthenticate,
+} from '../helpers/auth';
+import { getCookie } from '../helpers/storage';
+import { COOKIES } from '../const';
+import { AccessTokenInterface } from 'types';
 
-const AuthContext = createContext<any>(null);
+interface AuthContextInterface {
+  loggedIn: boolean;
+  user: AccessTokenInterface;
+  loginHandler: (data: LoginResponseData, to: string) => void;
+  logoutHandler: () => void;
+}
+
+const AuthContext = createContext<AuthContextInterface | null>(null);
 
 interface Props {
   children: ReactNode;
@@ -21,13 +34,20 @@ interface Props {
 
 const AuthProvider: FC<Props> = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [loggedIn, setLoggedIn] = useState<any>(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState<AccessTokenInterface>({
+    firstName: '',
+    lastName: '',
+    type: 'user',
+    userId: '',
+    userName: '',
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
     isAuth()
-      .then(async (res: unknown) => {
+      .then(async (res: boolean) => {
         setLoggedIn(res);
         setLoading(false);
       })
@@ -42,10 +62,21 @@ const AuthProvider: FC<Props> = ({ children }) => {
     };
   }, []);
 
-  const loginHandler = (data: any, to: any) => {
+  const loginHandler = (data: LoginResponseData, to: string) => {
     authenticate(data, async () => {
-      if (getCookie(COOKIES.ACCESSTOKEN)) {
+      let token = getCookie(COOKIES.ACCESSTOKEN);
+      if (token && getCookie(token)) {
         setLoggedIn(true);
+        const decoded: AccessTokenInterface = decodeJwt(token);
+        const { firstName, lastName, type, userId, userName } = decoded;
+        setUser({
+          ...user,
+          firstName: firstName,
+          lastName: lastName,
+          type: type,
+          userId: userId,
+          userName: userName,
+        });
         navigate(to && to.length > 0 ? to : '/', { replace: true });
       }
     });
@@ -60,6 +91,7 @@ const AuthProvider: FC<Props> = ({ children }) => {
 
   const context = {
     loggedIn,
+    user,
     loginHandler,
     logoutHandler,
   };
@@ -74,7 +106,11 @@ const AuthProvider: FC<Props> = ({ children }) => {
 };
 
 export const useAuthContext = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined || context === null) {
+    throw new Error(`useAuthContext must be called within AuthProvider`);
+  }
+  return context;
 };
 
 export { AuthContext, AuthProvider };

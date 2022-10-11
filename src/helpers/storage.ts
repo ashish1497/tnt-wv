@@ -1,15 +1,13 @@
-import Cookies from 'js-cookie';
+import cookie from 'js-cookie';
 
-import { ENVIRONMENT } from '../const';
-
-// Set, Remove and Get Cookies
+// Set, Remove and Get cookie
 export const setCookie = async (
   key: string,
   value: string,
   expires: number
 ) => {
   if (window !== undefined) {
-    Cookies.set(key, value, {
+    cookie.set(key, value, {
       expires: expires,
       secure: true,
       sameSite: 'Strict',
@@ -19,7 +17,7 @@ export const setCookie = async (
 
 export const removeCookie = (key: string) => {
   if (window !== undefined) {
-    Cookies.remove(key, {
+    cookie.remove(key, {
       expires: 1,
     });
   }
@@ -28,7 +26,7 @@ export const removeCookie = (key: string) => {
 export const getCookie = (key: string) => {
   // console.log(key, window);
   if (window !== undefined) {
-    return Cookies.get(key);
+    return cookie.get(key);
   }
 };
 

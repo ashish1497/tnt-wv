@@ -5,6 +5,7 @@ import { useFormik } from 'formik';
 
 import { Button, Input, Text } from '../../ui';
 import { useLogin } from '../../hooks/useReactQuery';
+import { useAuthContext } from 'contexts/AuthContext';
 
 interface LoginValues {
   username: string;
@@ -15,7 +16,7 @@ const LoginForm = () => {
   const [err, setErr] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const navigate = useNavigate();
+  const { loginHandler } = useAuthContext();
 
   const options = {
     onSuccess: (data: any) => {
@@ -28,9 +29,7 @@ const LoginForm = () => {
       if (responseSuccess) {
         setErr(null);
         setSuccess(responseMessage);
-        localStorage.setItem('tnt-at', responseData.accessToken);
-        localStorage.setItem('tnt-rt', responseData.refreshToken);
-        navigate('/');
+        loginHandler(responseData, '/');
       } else {
         setSuccess(null);
         setErr(responseMessage);
@@ -98,6 +97,7 @@ const LoginForm = () => {
         {isLoading ? <Text variant="warning" text="Loading..." /> : null}
         {isError ? <Text variant="failure" text={'Server err'} /> : null}
         {err ? <Text variant="failure" text={err} /> : null}
+        {error ? <Text variant="failure" text={JSON.stringify(error)} /> : null}
         {success ? <Text variant="success" text={success} /> : null}
       </form>
     </div>

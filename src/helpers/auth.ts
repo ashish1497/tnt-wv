@@ -31,11 +31,11 @@ export const authenticate = async (
 ) => {
   await setAccessToken(data.accessToken);
   await setCookie(COOKIES.REFRESHTOKEN, data.refreshToken, 364); // expires in 12 months
-  await delay(5000);
+  await delay(3000);
   next();
 };
 
-export const isAuth = () => {
+export const isAuth: () => Promise<boolean> = () => {
   if (window === undefined) {
     return Promise.resolve(false);
   } else {
@@ -44,7 +44,7 @@ export const isAuth = () => {
     if (accessCookieChecked) {
       return Promise.resolve(true);
     } else if (refreshCookieChecked) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         console.log('calling for new at');
 
         axios({
@@ -52,7 +52,7 @@ export const isAuth = () => {
           url: `${BASEURL}${APIURL.auth.token}`,
           data: { refreshToken: refreshCookieChecked },
         })
-          .then((res) => {
+          .then(res => {
             const { success, data } = res?.data;
             if (success) {
               setAccessToken(data?.accessToken);
@@ -63,14 +63,14 @@ export const isAuth = () => {
               });
             }
           })
-          .catch((err) => {
+          .catch(err => {
             unauthenticate(() => {
               resolve(false);
             });
           });
       });
     } else {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         unauthenticate(() => {
           resolve(false);
         });

@@ -11,3 +11,11 @@ export interface LoginBody {
   username: string;
   password: string;
 }
+
+export interface AccessTokenInterface {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  userName: string;
+  type: 'user' | 'delivery' | 'admin';
+}
